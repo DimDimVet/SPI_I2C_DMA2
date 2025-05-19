@@ -1,0 +1,94 @@
+#include "app.h"
+
+char receivedCharSPI_;
+char rezultReadSPI_[SIZE_BUF_USART];
+
+void ExecutorTerminal_USART_Irq(void)
+{
+    USART1_ReadChar(receivedChar); // Читаем из консоли
+
+    if(count_size_buf >= SIZE_BUF_USART)
+    {
+        count_size_buf=0;
+
+        __disable_irq();
+
+        for (int i = 0; i < SIZE_BUF_USART; i++)
+        {
+            SPI2_SetBayt(rezultReadConsol[i]);
+//            rezultReadSPI_[i]= SPI2_ReadBayt();
+        }
+				
+				SPI2_ReadBayt();
+				
+//        if(1)
+//        {
+//            USART1_SetString(rezultReadSPI_);
+//            __enable_irq();
+//        }
+//        else
+//        {
+//            USART1_SetString(rezultReadConsol);
+//            __enable_irq();
+//        }
+    }
+    else
+    {
+
+        rezultReadConsol[count_size_buf]=receivedChar_;
+        count_size_buf++;
+    }
+
+}
+
+void SPI2_IRQHandler(void)
+{
+	receivedCharSPI_ = SPI2_ReadBayt();
+
+    if(count_size_buf >= SIZE_BUF_USART)
+    {
+        count_size_buf=0;
+
+        __disable_irq();
+
+//        for (int i = 0; i < SIZE_BUF_USART; i++)
+//        {
+//            SPI2_SetBayt(rezultReadConsol[i]);
+////            rezultReadSPI_[i]= SPI2_ReadBayt();
+//        }
+
+        if(0)
+        {
+            USART1_SetString(rezultReadSPI_);
+            __enable_irq();
+        }
+        else
+        {
+            USART1_SetString(rezultReadConsol);
+            __enable_irq();
+        }
+    }
+    else
+    {
+
+        rezultReadConsol[count_size_buf]=receivedCharSPI_;
+        count_size_buf++;
+    }
+	
+}
+
+/////////////////
+
+int main(void)
+{
+    Init_LED();
+    Init_USART1(BAUND_RATE);
+    Init_SPI();
+
+    while (1)
+    {
+
+    }
+
+    return 0;
+}
